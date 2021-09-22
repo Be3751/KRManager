@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+requests = "*"
+
+[dev-packages]
+django = "*"
+requests = "*"
+
+[requires]
+python_version = "3.8"
+
+[scripts]
+dev = "python manage.py runserver 8080"
+migrate = "bash -c 'python manage.py makemigrations && python manage.py migrate'"
