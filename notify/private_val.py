@@ -1,3 +1,0 @@
-CLIENT_ID = 'IKnVx6f1R1OLWKyej5eqHw'
-CLIENT_SECRET = 'ul7HMVVPJzF6S4iiyB1TcFjV7EfVFsCT'
-URI = 'http://localhost:8080'
