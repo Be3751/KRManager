@@ -3,7 +3,7 @@ from django.urls import reverse
 
 import requests, base64, json
 
-from .private_val import CLIENT_ID, CLIENT_SECRET, URI
+from .private_val import CLIENT_ID, CLIENT_SECRET, LINE_ACCESS_TOKEN, URI
 
 def index(requst):
     pass
@@ -86,7 +86,19 @@ def auth_complete(request):
         'type': 'upcoming',
     })
     get_list_meetings_response_text = json.loads(get_list_meetings_response.text)
-    
+
+    notify(get_list_meetings_response_text)
+
     return render(request, 'auth/complete.html', {
         'response_text': get_list_meetings_response_text
     })
+
+# LINENotifyでメッセージを送信
+def notify(list_meetings_response_text):
+    url = 'https://notify-api.line.me/api/notify'
+    headers = {'Authorization': 'Bearer ' + LINE_ACCESS_TOKEN}
+    start_time = list_meetings_response_text['meetings'][0]['start_time']
+    join_url = list_meetings_response_text['meetings'][0]['join_url']
+    message = 'こんにちは！\n'+start_time+'のレッスンは下記のリンク先にあるZoom Meetingをご利用ください😌\n'+join_url
+    payload = {'message': message}
+    r = requests.post(url, headers=headers, params=payload)
