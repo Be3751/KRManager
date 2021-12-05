@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 import requests, base64, json
+import datetime
 
-from .private_val import CLIENT_ID, CLIENT_SECRET, URI
+from .private_val import CLIENT_ID, CLIENT_SECRET, LINE_ACCESS_TOKEN, URI
 
 def index(requst):
     pass
@@ -78,6 +79,7 @@ def auth_complete(request):
     get_user_response_text = json.loads(get_user_response.text)
     user_info = get_user_response_text['users'][0]
 
+    # ミーティング情報の取得
     get_list_meetings_url = 'https://api.zoom.us/v2/users/'+ user_info['id'] +'/meetings'
     get_list_meetings_headers = {
         'Authorization': 'Bearer {0}'.format(access_token)
@@ -87,6 +89,31 @@ def auth_complete(request):
     })
     get_list_meetings_response_text = json.loads(get_list_meetings_response.text)
     
+    # LINE Notifyによる通知
+    most_upcoming_lesson = get_list_meetings_response_text['meetings'][0]
+    notify(most_upcoming_lesson)
+
     return render(request, 'auth/complete.html', {
         'response_text': get_list_meetings_response_text
     })
+
+# LINENotifyでメッセージを送信
+def notify(most_upcoming_lesson):
+    # 直近ミーティングの情報を取得し加工
+    month = most_upcoming_lesson['start_time'][5:7][1] if most_upcoming_lesson['start_time'][5:7][0] == '0' else most_upcoming_lesson['start_time'][5:7]
+    day = most_upcoming_lesson['start_time'][8:10][1] if most_upcoming_lesson['start_time'][8:10][0] == '0' else most_upcoming_lesson['start_time'][8:10]
+    hour = int(most_upcoming_lesson['start_time'][12])+9
+    minute = most_upcoming_lesson['start_time'][14:16]
+    time = str(hour)+':'+str(minute)
+    start_time = month+'月'+day+'日'+time
+    join_url = most_upcoming_lesson['join_url']
+    
+    # レッスン前日にメッセージ通知
+    dt_today = datetime.datetime.now()
+    if(dt_today.month == int(month) and dt_today.day == int(day)):
+        # LINE Notifyにリクエスト
+        url = 'https://notify-api.line.me/api/notify'
+        headers = {'Authorization': 'Bearer ' + LINE_ACCESS_TOKEN}
+        message = 'こんにちは！\n'+start_time+'開始のレッスンは下記のリンク先にあるZoom Meetingをご利用ください😌\n'+join_url
+        payload = {'message': message}
+        r = requests.post(url, headers=headers, params=payload)

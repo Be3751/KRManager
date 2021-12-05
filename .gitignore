@@ -217,4 +217,4 @@ cython_debug/
 # End of https://www.toptal.com/developers/gitignore/api/django,python
 
 # My gitignore
-private_val.py
+notify/private_val.py
