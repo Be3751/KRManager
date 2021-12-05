@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.http import HttpResponse, HttpResponseRedirect
 
 import requests, base64, json
 import datetime
@@ -7,7 +8,7 @@ import datetime
 from .private_val import CLIENT_ID, CLIENT_SECRET, LINE_ACCESS_TOKEN, URI
 
 def index(requst):
-    pass
+    return HttpResponse("Hello")
 
 def auth(request):
     '''認証ページへリダイレクトさせる'''
@@ -15,6 +16,7 @@ def auth(request):
     client_id = CLIENT_ID
     client_secret = CLIENT_SECRET
 
+    # このif文内の処理をUIではなくコードビハインドで処理したい
     if 'code' not in request.GET:
         print('get code')
         auth_url = 'https://zoom.us/oauth/authorize'
@@ -24,9 +26,11 @@ def auth(request):
 
         auth_href = auth_url + '?response_type=' + response_type + '&client_id=' + client_id + '&redirect_uri=' + redirect_uri
         
-        return render(request, 'auth/auth.html', {
-            'auth_href': auth_href
-        })
+        # return render(request, 'auth/auth.html', {
+        #     'auth_href': auth_href
+        # })
+
+        return HttpResponseRedirect(auth_href)
     else:
         print('get token')
         auth_url = 'https://zoom.us/oauth/token'
@@ -94,7 +98,7 @@ def auth_complete(request):
     notify(most_upcoming_lesson)
 
     return render(request, 'auth/complete.html', {
-        'response_text': get_list_meetings_response_text
+        'response_text': get_list_meetings_response_text['meetings']
     })
 
 # LINENotifyでメッセージを送信
@@ -110,7 +114,7 @@ def notify(most_upcoming_lesson):
     
     # レッスン前日にメッセージ通知
     dt_today = datetime.datetime.now()
-    if(dt_today.month == int(month) and dt_today.day == int(day)):
+    if int(dt_today.day) - int(day) < 1:
         # LINE Notifyにリクエスト
         url = 'https://notify-api.line.me/api/notify'
         headers = {'Authorization': 'Bearer ' + LINE_ACCESS_TOKEN}
