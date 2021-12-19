@@ -114,7 +114,8 @@ def notify(most_upcoming_lesson):
     
     # レッスン前日にメッセージ通知
     dt_today = datetime.datetime.now()
-    if int(dt_today.day) - int(day) < 1:
+    # if int(dt_today.day) - int(day) < 1:
+    if True:
         # LINE Notifyにリクエスト
         url = 'https://notify-api.line.me/api/notify'
         headers = {'Authorization': 'Bearer ' + LINE_ACCESS_TOKEN}
