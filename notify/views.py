@@ -94,6 +94,7 @@ def auth_complete(request):
     get_list_meetings_response_text = json.loads(get_list_meetings_response.text)
     
     # LINE Notifyによる通知
+    print('Notify the most upcoming lesson.')
     most_upcoming_lesson = get_list_meetings_response_text['meetings'][0]
     notify(most_upcoming_lesson)
 
@@ -114,8 +115,8 @@ def notify(most_upcoming_lesson):
     
     # レッスン前日にメッセージ通知
     dt_today = datetime.datetime.now()
-    # if int(dt_today.day) - int(day) < 1:
-    if True:
+    if int(dt_today.day) - int(day) < 1:
+    # if True:
         # LINE Notifyにリクエスト
         url = 'https://notify-api.line.me/api/notify'
         headers = {'Authorization': 'Bearer ' + LINE_ACCESS_TOKEN}
