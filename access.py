@@ -1,10 +1,13 @@
 from selenium import webdriver
-import time
+import subprocess, signal
+import os, time
+
 from private_val import EMAIL, PWD
 
 root = 'http://localhost:8080/notify/'
 target = root + 'auth'
 goal = root + 'auth/complete'
+
 driver = webdriver.Safari()
 driver.get(target)
 
@@ -24,3 +27,17 @@ while True:
         print('quit the driver.')
         driver.quit()
         break
+
+p = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE) # 'ps -A'の実行，標準出力に対するパイプの解放
+out, err = p.communicate() # プロセスから標準出力と標準エラー出力を取得
+
+for line in out.splitlines():
+    if 'ngrok' in line.decode():
+        print('kill ngrok process')
+        pid = int(line.split(None, 1)[0])
+        os.kill(pid, signal.SIGKILL)
+
+    if 'manage.py' in line.decode():
+        print('kill manage.py process')
+        pid = int(line.split(None, 1)[0])
+        os.kill(pid, signal.SIGKILL)
