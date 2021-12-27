@@ -1,2 +1,15 @@
 # KRManager
-Here is a Django Project in cooperate with Zoom and LINE API for automating some parts of routine work in my business.
+## 概要
+毎週発生するZoomミーティング情報のLINEメッセージ送信を自動化しました。
+
+## LINE自動通知
+主にDjangoを用いて、以下の処理を行いました。
+- Zoom APIを用いたミーティング情報の取得
+- LINE Notifyを用いたメッセージ通知
+
+## Zoom自動ログイン
+ZoomのAPI認証時に必要なログインは、WebクローラーであるSeleniumを用いて自動化しました。
+
+## プログラムの自動実行
+必要なコマンドの実行を記したシェルスクリプトを作成しました。
+crontabを用いて毎週土曜日に作成したシェルスクリプトを実行します。
